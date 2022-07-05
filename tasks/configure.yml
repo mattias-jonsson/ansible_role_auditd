@@ -1,0 +1,40 @@
+---
+
+- name: create audit options from variables
+  set_fact:
+    ansible_role_auditd_options_merged: "{{ ansible_role_auditd_options_default | combine(ansible_role_auditd_options) }}"
+
+- name: create audit rules from variables
+  set_fact:
+    ansible_role_auditd_rules_merged: "{{ ansible_role_auditd_rules_default| union(ansible_role_auditd_rules) }}"
+
+- name: create auditd.conf
+  become: true
+  template:
+    src: auditd.conf.j2
+    dest: /etc/audit/auditd.conf
+    owner: root
+    group: root
+    mode: 0640
+  notify: reload auditd
+
+- name: create audit-stop.rules
+  become: true
+  template:
+    src: audit-stop.rules.j2
+    dest: /etc/audit/audit-stop.rules
+    owner: root
+    group: root
+    mode: 0640
+  notify: reload auditd
+
+- name: add audit.rules to /etc/audit/rules.d
+  become: true
+  template:
+    src: audit.rules.j2
+    dest: /etc/audit/rules.d/audit.rules
+    owner: root
+    group: root
+    mode: 0640
+  notify: reload auditd
+ 

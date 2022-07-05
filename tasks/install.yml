@@ -1,0 +1,7 @@
+---
+
+- name: install Auditd packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ ansible_role_auditd_packages }}"
+    state: present

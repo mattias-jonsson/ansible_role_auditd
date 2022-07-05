@@ -1,0 +1,7 @@
+---
+
+- name: reload auditd
+  become: true
+  command: augenrules --load
+  args:
+    warn: false
