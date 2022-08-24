@@ -78,7 +78,7 @@ Example Playbook
             -w /etc/sudoers.d/ -p wa -k actions
 
       roles:
-         - role: ansible_role_auditd
+         - ansible_role_auditd
 
 License
 -------
