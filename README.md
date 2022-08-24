@@ -1,7 +1,7 @@
 Ansible Role: ansible_role_vmware_tools
 =========
 
-Ansible role that installs and configures Auditd on supported Operating Systems.
+Installs and configures auditd on supported Operating Systems.
 
 This role supports the following Operating Systems:
 
@@ -19,7 +19,7 @@ This role has no dependencies besides what is included in Ansible Core.
 Role Variables
 --------------
 
-Available variables are listed below, along with default values where applicable (see defaults/main.yml):
+Available variables are listed below, along with default values where applicable (see `defaults/main.yml`):
 
     ansible_role_auditd_options
 
