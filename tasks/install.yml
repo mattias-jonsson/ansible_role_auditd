@@ -1,0 +1,19 @@
+---
+
+- name: install packages on Debian-distributions
+  become: True
+  ansible.builtin.apt:
+    name: "{{ ansible_role_auditd_packages }}"
+    update_cache: yes
+    lock_timeout: 300
+    state: present
+  when: ansible_distribution_file_variety == "Debian"
+
+- name: install packages on EL-distributions
+  become: True
+  ansible.builtin.yum:
+    name: "{{ ansible_role_auditd_packages }}"
+    update_cache: yes
+    lock_timeout: 300
+    state: present
+  when: ansible_distribution_file_variety == "RedHat"

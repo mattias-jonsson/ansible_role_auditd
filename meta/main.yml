@@ -1,0 +1,16 @@
+---
+
+galaxy_info:
+  author: Mattias Jonsson
+  description: Ansible role that installs and configures Auditd on supported Operating Systems.
+  min_ansible_version: 2.9.27
+  role_name: ansible_role_auditd
+  license: MIT
+  platforms:
+  - name: EL
+    versions:
+    - "7"
+    - "8"
+  - name: Debian
+    versions:
+    - "bullseye"

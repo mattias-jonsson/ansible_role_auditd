@@ -1,0 +1,5 @@
+## {{ ansible_managed }}
+
+{% for item in ansible_role_auditd_rules_merged %}
+{{ item }}
+{% endfor %}
