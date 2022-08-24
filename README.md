@@ -1,4 +1,4 @@
-Ansible Role: ansible_role_vmware_tools
+Ansible Role: ansible_role_auditd
 =========
 
 Installs and configures auditd on the following Linux distributions:
