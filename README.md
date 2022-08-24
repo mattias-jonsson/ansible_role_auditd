@@ -30,7 +30,7 @@ List of rules foir auditd.
 Dependencies
 ------------
 
-This role has no external dependencies.
+None.
 
 Example Playbook
 ----------------
