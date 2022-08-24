@@ -1,9 +1,7 @@
 Ansible Role: ansible_role_vmware_tools
 =========
 
-Installs and configures auditd on supported Operating Systems.
-
-This role supports the following Operating Systems:
+Installs and configures auditd on the following Linux distributions:
 
 <ul>
 <li> Enterprise Linux 7 (RHEL/CentOS/etc.)
