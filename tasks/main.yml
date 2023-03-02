@@ -1,15 +1,20 @@
 ---
 
 - name: Assert some variables and ansible os family
-  assert:
+  ansible.builtin.assert:
     that:
       - ansible_os_family == "RedHat" or ansible_os_family == "Debian"
     msg: "Unsupported distribution."
 
 - name: Include variables specific for the distribution.
-  include_vars: "{{ item }}"
+  ansible.builtin.include_vars: "{{ item }}"
   with_items:
     - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
 
-- import_tasks: install.yml
-- import_tasks: configure.yml
+- name: Import install tasks.
+  ansible.builtin.import_tasks:
+    file: install.yml
+
+- name: Import configure tasks.
+  ansible.builtin.import_tasks:
+    file: configure.yml
