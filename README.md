@@ -15,8 +15,8 @@ Available variables are listed below, along with default values where applicable
 
 | Variable | Required | Default | Comments |
 | -------- | -------- | ------- | -------- |
-| `auditd_backup` | No | true | If true, backup copies will be created for all configuration files modified during the role execution. |
-| `auditd_cleanup` | No | true | If set to `true`, removes any rule files in the `rules.d` directory that are not specified in the `auditd_rules` list, except for `00_default.rules` (the distribution default rules). |
+| `auditd_backup` | No | true | If set to true, backup copies will be created for all configuration files modified during the role execution. |
+| `auditd_cleanup` | No | true | Setting this option to true will rename all rule files in the rules.d directory that are not listed in the auditd_rules list, except for 00_default.rules (the distribution’s default rules). The renamed files will have .disabled as their new extension. |
 | `auditd_options` | No | [] | A list of key/value pairs to configure additional `auditd` settings. Each pair represents a setting in the `auditd.conf` file, such as `freq`, `action_mail_acct`, etc. Refer to the example playbook below for usage. |
 | `auditd_rules` | No | [] | A list of audit rules to be applied. Each rule should be specified as a dictionary with keys such as `name`, `priority`, and `rules`. Refer to the example playbook below for examples. |
 
