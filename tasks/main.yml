@@ -1,20 +1,103 @@
 ---
 
-- name: Assert some variables and ansible os family
+- name: Verify that we're running on a supported Linux distribution.
   ansible.builtin.assert:
     that:
-      - ansible_os_family == "RedHat" or ansible_os_family == "Debian"
-    msg: "Unsupported distribution."
+      - (ansible_os_family == "RedHat" and ansible_distribution_major_version | int  == 7) or
+        (ansible_os_family == "RedHat" and ansible_distribution_major_version | int == 8) or
+        (ansible_os_family  == "RedHat" and ansible_distribution_major_version | int == 9) or
+        (ansible_distribution == "Debian" and ansible_distribution_major_version | int == 11) or
+        (ansible_distribution == "Debian" and ansible_distribution_major_version | int == 12)
+    msg: "Unsupported distribution or version."
+    quiet: true
 
+# TODO change to use ansible_distribution instead
 - name: Include variables specific for the distribution.
   ansible.builtin.include_vars: "{{ item }}"
   with_items:
     - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
 
+- name: Assert that there are only allowed options in auditd_options
+  ansible.builtin.assert:
+    that:
+      - auditd_options | difference(auditd_default_options) | length < 1
+    msg: "The following auditd_options are not allowed: {{ auditd_options | difference(auditd_default_options) | join(', ') }}"
+    quiet: true
+
+
+- name: Duplicate auditd rules check.
+  block:
+    - name: Flatten rules into a list.
+      ansible.builtin.set_fact:
+        all_rules: "{{ all_rules | default([]) + item.rules.split('\n') | map('trim') | select('match', '^.+$') | list }}"
+      loop: "{{ auditd_rules }}"
+      loop_control:
+        label: '{{ item.name }}'
+
+    - name: Count occurrences of each rule.
+      ansible.builtin.set_fact:
+        rule_counts: "{{ rule_counts | default({}) | combine({item: (rule_counts[item] | default(0)) + 1}) }}"
+      loop: "{{ all_rules }}"
+
+    - name: Extract rule duplicates.
+      ansible.builtin.set_fact:
+        rule_duplicates: "{{ rule_duplicates | default([]) + [item] }}"
+      loop: "{{ rule_counts.keys() }}"
+      when: rule_counts[item] > 1
+
+    - name: Assert that there are no duplicated rules.
+      ansible.builtin.assert:
+        that:  rule_duplicates | default([]) | length < 1
+        quiet: true
+        msg: "Duplicate rules found: {{ rule_duplicates | default('') }}"
+
+
 - name: Import install tasks.
-  ansible.builtin.import_tasks:
-    file: install.yml
+  ansible.builtin.include_tasks:
+    file: install_{{ package_manager }}.yml
+  vars:
+    package_manager: "{{ 'yum' if ansible_os_family == 'RedHat' else 'apt' if ansible_os_family == 'Debian' }}"
 
 - name: Import configure tasks.
-  ansible.builtin.import_tasks:
+  ansible.builtin.include_tasks:
     file: configure.yml
+
+- name: Merge all component audit rules files
+  become: true
+  ansible.builtin.command: augenrules --load
+  register: augenrules_command
+  failed_when: augenrules_command.stderr != ""
+  changed_when: "' no change' not in augenrules_command.stdout | lower"
+  when:
+    - package_install.changed | default(false) or
+      auditd_config_file.changed | default(false) or
+      auditd_stop_rules_config_file.changed | default(false) or
+      auditd_default_rules_config_file.changed | default(false) or
+      auditd_custom_rules_config_file.changed | default(false)
+
+- name: Cleanup block
+  when: auditd_cleanup | default(false)
+  block:
+    - name: Build list of filenames to exclude
+      ansible.builtin.set_fact:
+        custom_rule_files: "{{ custom_rule_files | default([]) + [item.priority|string ~ '_' ~ item.name ~ '.rules'] }}"
+      loop: "{{ auditd_rules }}"
+      loop_control:
+        label: '{{ item.priority }}_{{ item.name }}.rules'
+
+    - name: Build list of unwanted files in /etc/audit/rules.d.
+      become: true
+      ansible.builtin.find:
+        paths: "/etc/audit/rules.d"
+        file_type: file
+        patterns:
+          - '.*\.rules'
+          - '.*\.disabled'
+        use_regex: true
+        excludes: ".*\\.disabled,00_default.rule,{{ custom_rule_files | join(',') }}"
+      register: auditd_matched_files
+
+    - name: Rename unwanted files in auditd_matched_files with the extension .disabled.
+      become: true
+      ansible.builtin.command: mv "/etc/audit/rules.d/{{ item | basename }}" "/etc/audit/rules.d/{{ item | basename }}.disabled"
+      with_items: "{{ auditd_matched_files.files | map(attribute='path') | list }}"

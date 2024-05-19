@@ -2,11 +2,7 @@
 
 - name: Create audit options from variables.
   ansible.builtin.set_fact:
-    ansible_role_auditd_options_merged: "{{ ansible_role_auditd_options_default | combine(ansible_role_auditd_options) }}"
-
-- name: Create audit rules from variables.
-  ansible.builtin.set_fact:
-    ansible_role_auditd_rules_merged: "{{ ansible_role_auditd_rules_default | union(ansible_role_auditd_rules) }}"
+    auditd_options_merged: "{{ auditd_default_options | combine(auditd_options) }}"
 
 - name: Create auditd.conf.
   become: true
@@ -16,7 +12,8 @@
     owner: root
     group: root
     mode: '0640'
-  notify: Reload auditd
+    backup: '{{ auditd_backup }}'
+  register: auditd_config_file
 
 - name: Create audit-stop.rules.
   become: true
@@ -26,14 +23,31 @@
     owner: root
     group: root
     mode: '0640'
-  notify: Reload auditd
+    backup: '{{ auditd_backup }}'
+  register: auditd_stop_rules_config_file
 
-- name: Add audit.rules to /etc/audit/rules.d.
+- name: Add distro default rules to /etc/audit/rules.d.
   become: true
   ansible.builtin.template:
-    src: audit.rules.j2
-    dest: /etc/audit/rules.d/audit.rules
+    src: 00_default.rules.j2
+    dest: /etc/audit/rules.d/00_default.rules
     owner: root
     group: root
     mode: '0640'
-  notify: Reload auditd
+    backup: '{{ auditd_backup }}'
+  register: auditd_default_rules_config_file
+
+- name: Add custom rules to /etc/audit/rules.d.
+  become: true
+  ansible.builtin.template:
+    src: auditd.rules.j2
+    dest: /etc/audit/rules.d/{{ custom_rules.priority }}_{{ custom_rules.name }}.rules
+    owner: root
+    group: root
+    mode: '0640'
+    backup: '{{ auditd_backup }}'
+  loop: '{{ auditd_rules }}'
+  loop_control:
+    label: '{{ custom_rules.priority }}_{{ custom_rules.name }}'
+    loop_var: custom_rules
+  register: auditd_custom_rules_config_file

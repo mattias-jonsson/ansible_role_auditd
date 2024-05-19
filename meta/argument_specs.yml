@@ -1,0 +1,27 @@
+---
+
+argument_specs:
+  main:
+    short_description: "Installs and configures the Linux Auditing System (auditd) on Enterprise Linux 7/8/9 (RHEL/CentOS/etc.) and Debian 11/12."
+    options:
+      auditd_backup:
+        description:
+          - If true, backup copies will be created for all configuration files modified during the role execution.
+        required: false
+        type: bool
+      auditd_cleanup:
+        description:
+          - If set to `true`, removes any rule files in the `rules.d` directory that are not specified in the `auditd_rules` list, except for `00_default.rules` (the distribution default rules).
+        required: false
+        type: bool
+      auditd_options:
+        description:
+          - A list of key/value pairs to configure additional `auditd` settings. Each pair represents a setting in the `auditd.conf` file, such as `freq`, `action_mail_acct`, etc. Refer to the example playbook below for usage.
+        required: false
+        default: []
+        type: dict
+      auditd_rules:
+        description: "A list of audit rules to be applied. Each rule should be specified as a dictionary with keys such as name, priority, and rules."
+        required: false
+        default: []
+        type: list

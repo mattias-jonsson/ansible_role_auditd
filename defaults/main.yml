@@ -1,5 +1,6 @@
 ---
 
-ansible_role_auditd_options: []
-
-ansible_role_auditd_rules: []
+auditd_backup: true
+auditd_cleanup: true
+auditd_options: []
+auditd_rules: []

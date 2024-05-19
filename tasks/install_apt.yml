@@ -1,0 +1,11 @@
+---
+
+- name: Install packages on Debian-distributions.
+  become: true
+  ansible.builtin.apt:
+    name: "{{ auditd_packages }}"
+    update_cache: true
+    lock_timeout: 300
+    state: present
+  register: package_install
+  when: ansible_distribution_file_variety == "Debian"

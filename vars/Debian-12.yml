@@ -1,8 +1,7 @@
 ---
 
 auditd_packages:
-  - audit
-  - audit-libs
+  - auditd
 
 auditd_default_options:
   action_mail_acct: 'root'
@@ -10,24 +9,27 @@ auditd_default_options:
   admin_space_left: '50'
   disk_error_action: 'SUSPEND'
   disk_full_action: 'SUSPEND'
-  disp_qos: 'lossy'
-  dispatcher: '/sbin/audispd'
   distribute_network: 'no'
-  enable_krb5: 'no'
+  enable_krb5:
+  end_of_event_timeout: '2'
   flush: 'INCREMENTAL_ASYNC'
   freq: '50'
   krb5_key_file:
   krb5_principal: 'auditd'
   local_events: 'yes'
   log_file: '/var/log/audit/audit.log'
-  log_format: 'RAW'
-  log_group: 'root'
+  log_format: 'ENRICHED'
+  log_group: 'adm'
   max_log_file_action: 'ROTATE'
   max_log_file: '8'
+  max_restarts: '10'
   name_format: 'NONE'
   name:
   num_logs: '5'
+  overflow_action: 'SYSLOG'
+  plugin_dir: '/etc/audit/plugins.d'
   priority_boost: '4'
+  q_depth: '2000'
   space_left_action: 'SYSLOG'
   space_left: '75'
   tcp_client_max_idle: '0'
@@ -35,11 +37,13 @@ auditd_default_options:
   tcp_listen_port:
   tcp_listen_queue: '5'
   tcp_max_per_addr: '1'
+  transport: 'TCP'
   use_libwrap: 'yes'
   verify_email: 'yes'
   write_logs: 'yes'
 
-auditd_rules_default: |
+auditd_rules_default:
   -D
   -b 8192
   -f 1
+  --backlog_wait_time 60000

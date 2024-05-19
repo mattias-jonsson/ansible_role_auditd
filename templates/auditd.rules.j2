@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+{% for rule in custom_rules.rules.split('\n') %}
+{{ rule }}
+{% endfor %}

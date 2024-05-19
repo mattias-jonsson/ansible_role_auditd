@@ -1,0 +1,10 @@
+---
+
+- name: Install packages on EL-distributions.
+  become: true
+  ansible.builtin.yum:
+    name: "{{ auditd_packages }}"
+    update_cache: true
+    lock_timeout: 300
+    state: present
+  when: ansible_distribution_file_variety == "RedHat"

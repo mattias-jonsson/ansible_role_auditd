@@ -1,7 +1,0 @@
----
-
-- name: Reload auditd
-  become: true
-  ansible.builtin.command: augenrules --load
-  args:
-    warn: false

@@ -1,5 +1,9 @@
 # {{ ansible_managed }}
 
-{% for key, value in ansible_role_auditd_options_merged.items() %}
+{% for key, value in auditd_options_merged.items() %}
+{% if value is not none %}
 {{ key }} = {{ value }}
+{% else %}
+# {{ key }} has no value defined and is commented out
+{% endif %}
 {% endfor %}
