@@ -11,7 +11,7 @@ argument_specs:
         type: bool
       auditd_cleanup:
         description:
-          - If set to `true`, removes any rule files in the `rules.d` directory that are not specified in the `auditd_rules` list, except for `00_default.rules` (the distribution default rules).
+          - Setting this option to true will rename all rule files in the rules.d directory that are not listed in the auditd_rules list, except for 00_default.rules (the distribution’s default rules). The renamed files will have .disabled as their new extension.
         required: false
         type: bool
       auditd_options:
